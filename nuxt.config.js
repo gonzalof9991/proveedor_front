@@ -1,7 +1,10 @@
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
-
+  ssr:false,
+  generate: {
+    fallback: true
+  },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'Proovedor | Dashboard',
@@ -46,5 +49,8 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    babel: {
+      compact: true
+    }
   }
 }
