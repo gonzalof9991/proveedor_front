@@ -199,8 +199,7 @@ export default {
     else{
       this.$router.push({path:'/'});
     }
-    await product.index()
-      .then(res => console.log(res))
+
 
   },
   methods:{
@@ -212,13 +211,17 @@ export default {
       })
 
     },
-    async sendToStock(p){
-      console.log(product.store(this.carts[0]));
-      await this.carts.forEach(item => {
-         product.store(item)
-          .then(res => this.showSuccess = true)
-          .catch(er => this.showSuccess = false)
-      })
+    async sendToStock(){
+      try{
+        await this.carts.forEach(item => {
+          product.store(item)
+            .then(res => this.showSuccess = true)
+            .catch(er => this.showSuccess = false)
+        })
+      }catch (e) {
+        console.error(e);
+      }
+
     },
     filterBrand(v){
       this.selectedBrand = v;
