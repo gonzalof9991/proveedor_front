@@ -59,7 +59,7 @@
             <h4 class="color__proveedor m-0">Resultados</h4>
           </div>
           <div>
-            <span >Ordenar por</span>
+            <span class="d-none" >Ordenar por</span>
           </div>
         </div>
         <div class="products">
