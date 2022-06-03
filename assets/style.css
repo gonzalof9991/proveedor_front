@@ -1,0 +1,150 @@
+
+.h-100vh{
+  height: 100vh;
+}
+
+
+.box-index{
+  background-image: url('/img/fondo_linea.png');
+  background-position: center;
+}
+
+.login{
+  width: 500px;
+  height: 500px;
+  display: flex;
+  background: #fff;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0) !important;
+  padding: 10px 15px;
+  flex-wrap: wrap;
+}
+
+.login__form{
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0/15%) !important;
+  transition: all .3s ease;
+}
+
+.login__form--error{
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d90000;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0/15%) !important;
+  transition: all .2s ease;
+}
+
+.login__form:focus{
+  border: 1px solid #00254e !important;
+}
+.login__form:hover{
+  cursor: pointer;
+  border: 1px solid #00254e;
+}
+
+.login__button{
+  width: 40%;
+  background: #00458F;
+  text-align: center;
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 5px;
+  border-radius: 10px;
+  border-bottom: 7px solid #003165;
+  transition: all .8s ease;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0/25%) !important;
+  margin-bottom: 3%;
+}
+
+.login__button--disabled{
+  width: 40%;
+  background: #00458F;
+  opacity: .3;
+  text-align: center;
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 5px;
+  border-radius: 10px;
+  border-bottom: 7px solid #003165;
+  transition: all .8s ease;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0/25%) !important;
+  margin-bottom: 3%;
+  cursor: not-allowed;
+}
+
+.login__button:hover{
+  background: #003165;
+  border-bottom: 7px solid #00254e;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0/25%) !important;
+
+}
+
+.login__button:active{
+  position: relative;
+  top: -10px;
+}
+
+.login__p{
+  color: #00254e;
+  cursor: pointer;
+}
+
+.login__p--error{
+  font-size: .8rem;
+  color: #d90000;
+  padding: 0 10px;
+  margin-top: 10px;
+}
+
+.login__header{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0 0 0;
+}
+
+.login__body{
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.bg__proveedor{
+  background: #00458F;
+}
+.color__proveedor{
+  color: #00458F;
+  font-weight: bold;
+}
+
+/* Home */
+
+.main{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  flex-grow: .5;
+  margin-left: 15%;
+  width: 85%;
+}
+
+.products{
+  width: 70%;
+  height: 100%;
+  margin: 50px auto;
+  display: flex;
+}
