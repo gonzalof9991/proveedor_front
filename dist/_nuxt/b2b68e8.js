@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[9],{340:function(t,n,e){"use strict";e.r(n);var l={name:"Template"},c=e(89),component=Object(c.a)(l,(function(){var t=this,n=t.$createElement,e=t._self._c||n;return e("Transition",{attrs:{name:"template"}},[e("div",{staticClass:"main"},[t._t("content")],2)])}),[],!1,null,null,null);n.default=component.exports}}]);
