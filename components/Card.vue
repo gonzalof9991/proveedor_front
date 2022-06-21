@@ -9,8 +9,11 @@
     </div>
     <div class="card__footer">
       <div class="footer__button--amount">
-        <div class="button__remove"  @click="(count !== 0) ? count-- : null">-</div>
-        <div class="flex-grow-1 text-center p-3">{{showCount}}</div>
+        <div class="button__remove"  @click="(count !== 1) ? count-- : null">-</div>
+        <div class="amount">
+          <span class="amount__title">Cantidad</span>
+          {{showCount}}
+        </div>
         <div class="button__add"  @click="(count !== 8) ? count++ : null">+</div>
       </div>
       <div class="footer__button--add" @click="sendProduct(1)">
@@ -59,37 +62,48 @@ export default {
   justify-content: space-around;
   align-items: center;
   .button__remove{
-    padding: 1px;
-    background: #fe6563;
-    border-bottom: 5px solid #c34c4b;
-    flex-grow: 1;
+    background: var(--color);
+    flex-grow: .2;
     display: flex;
     border-radius: 12px;
     justify-content: center;
     align-items: center;
     color: #fff;
+    align-self: center;
     font-size: 1.5rem;
     cursor: pointer;
-    height: max-content;
   }
   .button__add{
-    padding: 1px;
-    background: #ff908f;
-    border-bottom: 5px solid #d37675;
-    flex-grow: 1;
+    background: var(--color);
+    flex-grow: .2;
     display: flex;
     border-radius: 12px;
     justify-content: center;
     align-items: center;
     color: #fff;
+    align-self: center;
     font-size: 1.5rem;
     cursor: pointer;
-    height: max-content;
+  }
+  .amount{
+    box-shadow: var(--box-shadow);
+    flex-grow: .3;
+    border-radius: 12px;
+    color: var(--color);
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    flex-direction: column;
+    .amount__title{
+      font-size: .8rem;
+    }
   }
 }
 .card__p{
-  width: 360px;
-  height: 420px;
+  width: 350px;
+  height: 490px;
   display: flex;
   margin: 0 20px;
   margin-bottom: 20px;
@@ -98,8 +112,8 @@ export default {
   flex-wrap: wrap;
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 0.5rem 1rem rgb(0 0 0/15%) !important;
-  transition: all .5s ease;
+  box-shadow: var(--box-shadow);
+  transition: all 0.5s ease;
 }
 .card__p:hover{
   position: relative;

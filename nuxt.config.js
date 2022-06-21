@@ -1,7 +1,6 @@
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
-  ssr:false,
   generate: {
     fallback: true
   },
@@ -24,7 +23,8 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
-    '@/assets/style.css'
+    '@/assets/style.scss',
+    '@/assets/transition.css',
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -32,7 +32,29 @@ export default {
     '~/plugins/bootstrap.js'
   ],
 
+  firebase: {
+    config:{
+      apiKey: 'AIzaSyC3i98K1c4UOesUXyAco7erJskTxI0I2Bs',
+      authDomain: 'proovedor-front.firebaseapp.com',
+      projectId: 'proovedor-front',
+      storageBucket: 'proovedor-front.appspot.com',
+      messagingSenderId: '486461246395',
+      appId: '1:486461246395:web:46acdcc6b8c79fe670129e',
+      measurementId: 'G-B3552N9NHP'
+    },
+    services:{
+      auth: true,
+      firestore: true,
+      functions: true,
+      storage: true,
+      database: true,
+      messaging: true,
+      performance: true,
+      analytics: true,
+      remoteConfig: true
+    }
 
+  },
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -45,7 +67,14 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
+    '@nuxtjs/firebase'
   ],
+
+  env:{
+    VUE_APP_FIREBASE_KEY : process.env.VUE_APP_FIREBASE_KEY
+  },
+
+
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
