@@ -33,35 +33,28 @@
       <Template v-if="view === 'Products'">
         <template v-slot:content>
           <div class="mt-5 d-flex justify-content-between align-items-center">
-            <h3 class="ml-5 color__proveedor font-weight-bold">Dashboard</h3>
+            <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Dashboard</h3>
             <div class="user">
               <h5 class="color__red">Gonzalo</h5>
               <h6 class="bagde--prov">Admin</h6>
             </div>
           </div>
           <div class="filter__brand" v-if="brands.length > 1">
-            <div class="button__brand" @click="() => {
-            if(from !== 0){
-              this.from -= 4;
-              this.to -= 4;
-            }
-          }"> <b-icon icon="arrow-left-circle-fill" font-scale="2"></b-icon> </div>
+            <div v-if="from > 0" class="button__brand" @click="actionBrands('reduce')">
+              <b-icon icon="arrow-left-circle-fill" font-scale="2"></b-icon> </div>
             <div @click="filterBrand(b)" v-for="b in showBrands" :key="b.id"  :class="(selectedBrand === b) ? 'brand__card--active brand' :'brand__card brand'">
 
-              <img v-if="b.length > 0" :src="`/img/brands/${b}.webp`" class="w-75" alt="">
+              <img v-if="b.length > 0" :src="(showFilterBrand) ? '/gif/loader.gif' : `/img/brands/${b}.webp`" :class="(showFilterBrand) ? 'w-75 filter__gray--not' : 'w-75'" alt="">
 
             </div>
-            <div v-if="to < brands.length" class="button__brand" @click="from += 4; to += 4;"> <b-icon icon="arrow-right-circle-fill" font-scale="2"></b-icon> </div>
+            <div v-if="to < brands.length" class="button__brand" @click="actionBrands('increment')"> <b-icon icon="arrow-right-circle-fill" font-scale="2"></b-icon> </div>
           </div>
           <div class="result">
             <div class="result__texts">
               <div class="texts_div">
                 {{showProductsLength}}
               </div>
-              <h4 class="color__proveedor m-0">Resultados</h4>
-            </div>
-            <div>
-              <span class="d-none" >Ordenar por</span>
+              <h4 class="color__proveedor m-0">{{ (showProductsLength > 1) ? 'Resultados' : 'Resultado'}}</h4>
             </div>
           </div>
           <div class="products">
@@ -83,14 +76,25 @@
                 :data="p"
                 @sendProduct="listeningSendProduct"
               />
-
+              <button v-if="showButtonMore && toProduct >= 4 && showProductsLength >= 4" @click="showMoreProducts()" type="button" class="button__list--add">
+                Mostrar mas
+              </button>
             </div>
             <div v-else class="d-flex justify-content-center align-items-center flex-grow-1">
-              <BounceLoader :loading="true" :color="'#00458F'" :size="'120px'"></BounceLoader>
+              <BounceLoader :loading="true" :color="'#fe6563'" :size="'120px'"></BounceLoader>
             </div>
           </div>
           <!-- Modal Detalle -->
           <b-modal id="modal__prov" size="lg" hide-footer>
+            <template #modal-header="{ close }">
+              <div>
+                <h4 class="text-white font-weight-bold text-center">Detalle del producto</h4>
+              </div>
+              <div @click="close()">
+                <b-icon icon="x-lg" class="x__close" font-scale="1.5"></b-icon>
+              </div>
+
+            </template>
             <div class="modal__body">
               <div class="body__header">
                 <b-img class="img-fluid" :src="productSelected.image_url"></b-img>
@@ -113,22 +117,56 @@
 
           </b-modal>
           <!-- Modal Carrito -->
-          <b-modal id="modal__prov--carrito" size="lg" hide-footer>
+          <b-modal id="modal__prov--carrito" size="xl" :no-close-on-backdrop=true hide-footer>
+            <template #modal-header="{ close }">
+              <div>
+                <h4 v-if="carts.length > 0" class="text-white font-weight-bold text-center">Precio total: {{showTotalPrice}}</h4>
+                <h4 v-else class="text-white font-weight-bold text-center">Carrito de compra</h4>
+
+              </div>
+              <div @click="close(); showMessage = false;">
+                <b-icon icon="x-lg" class="x__close" font-scale="1.5"></b-icon>
+              </div>
+
+            </template>
             <div class="modal__body--carrito">
-              <div v-if="carts.length > 0" class="cart__list " v-for="c in carts">
-                <b-img class="w-10" :src="c.image_url"></b-img>
+              <div v-if="carts.length > 0 && !showSend && !showMessage" class="cart__list " v-for="c in carts">
+                <b-img class="w-8" :src="c.image_url"></b-img>
                 <span class="flex-grow-1 text-center color__proveedor">{{c.name}}</span>
-                <span class="mr-3">{{c.count}}</span>
+                <span class="mr-3 font-weight-bold"> Precio: {{`$${new Intl.NumberFormat().format(c.totalPrice)}`}}</span>
+                <span class="mr-3 font-weight-bold"> Cantidad: {{c.count}}</span>
                 <b-icon @click="removeCart(c)" icon="dash-circle-fill" font-scale="1.5" class="icon__delete"></b-icon>
               </div>
-              <div v-if="carts.length === 0" class="d-flex justify-content-center align-items-center">
-                <h6 class="color__proveedor">No hay productos en su carrito.</h6>
+              <div v-if="carts.length === 0  && !showSend && !showMessage" class="d-flex justify-content-center align-items-center">
+                <h5 class="color__proveedor">No hay productos en su carrito.</h5>
+              </div>
+              <div v-if="showSend" class="d-flex justify-content-center align-items-center">
+                <lord-icon
+                  src="https://cdn.lordicon.com/ukodqrxd.json"
+                  trigger="loop"
+                  colors="primary:#e55958,secondary:#e55958"
+                  stroke="100"
+                  style="width:250px;height:250px">
+                </lord-icon>
+              </div>
+              <div v-if="showMessage" class="d-flex flex-column justify-content-center align-items-center">
+                <h4 class="bagde--prov">Compra exitosa</h4>
+                <lord-icon
+                  src="https://cdn.lordicon.com/dlhcdyui.json"
+                  trigger="loop"
+                  colors="primary:#e55958,secondary:#e55958"
+                  style="width:250px;height:250px">
+                </lord-icon>
+                <div class="message--success">Se ha registrado el ticket N°{{ticketId}} en el sistema, para más detalles vaya a la página "Ordenes", muchas gracias.</div>
               </div>
 
             </div>
             <div v-if="carts.length > 0" class="modal__footer--carrito">
               <div @click="sendToStock()" class="footer__button--carrito">
-                Enviar
+                <span v-if="showSend">Enviando... </span>
+                <div v-else class="d-flex justify-content-center align-items-center">
+                  <span>Enviar</span>
+                </div>
               </div>
             </div>
 
@@ -140,7 +178,27 @@
 
       <Template v-if="view === 'Tickets'">
         <template v-slot:content>
-          <h1>Tickets</h1>
+          <div class="mt-5 d-flex justify-content-between align-items-center">
+            <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Ordenes</h3>
+            <div class="user">
+              <h5 class="color__red">Gonzalo</h5>
+              <h6 class="bagde--prov">Admin</h6>
+            </div>
+          </div>
+          <div  class="tickets">
+            <div v-if="tickets.length > 0" class="tickets__table">
+              <b-table striped hover :items="tickets"></b-table>
+            </div>
+            <div v-else class="mt-5 mb-5 d-flex flex-column justify-content-center align-items-center">
+              <lord-icon
+                src="https://cdn.lordicon.com/nlzvfogq.json"
+                trigger="loop"
+                colors="primary:#e55958,secondary:#e55958"
+                style="width:250px;height:250px">
+              </lord-icon>
+              <h4 class="bagde--prov">No hay ordenes creadas, muchas gracias.</h4>
+            </div>
+          </div>
         </template>
       </Template>
     </main>
@@ -154,6 +212,8 @@ import BounceLoader from 'vue-spinner/src/BounceLoader.vue';
 import Card from "~/components/Card";
 import product from "~/services/API/Stock/product.js";
 import Template from "@/components/Template";
+import tickets from "@/services/API/tickets";
+import products_tickets from "@/services/API/products_tickets";
 export default {
   name: 'IndexPage',
   components: {Template, Card, BounceLoader},
@@ -169,19 +229,28 @@ export default {
       showSpinner: false,
       selectedBrand: '',
       isLogged: false,
-      from: 0,
-      to: 4,
+      from: 0, // Brand
+      to: 4, // Brand
+      fromProduct: 0, // Product
+      toProduct: 4, // Product,
+      showSend: false,
+      showFilterBrand: false,
+      showButtonMore: false,
+      showMessage: false,
       productSelected: {},
-      view: 'Products'
+      ticketId: 0,
+      totalPrice: 0, // Precio total carrito
+      view: 'Products',
+      tickets: []
     }
   },
   computed:{
     showProducts(){
       if(this.showFilter){
-        return this.productsSet
+        return this.productsSet.slice(this.fromProduct,this.toProduct)
       }
       else{
-        return this.products
+        return this.products.slice(this.fromProduct,this.toProduct);
       }
     },
     showProductsLength(){
@@ -192,9 +261,19 @@ export default {
         return this.products.length;
       }
     },
+    showTotalPrice(){
+      let totalPrice = this.carts.reduce((sum,item) => {
+        return sum += item.totalPrice;
+      },0);
+      this.totalPrice = totalPrice;
+      let totalPriceFormatter = new Intl.NumberFormat().format(totalPrice)
+      return `$${totalPriceFormatter}`;
+    },
+
     showBrands(){
       return this.brands.slice(this.from,this.to);
-    }
+    },
+
   },
 
   async created() {
@@ -206,19 +285,49 @@ export default {
             this.brands.push(item.brand.name);
           })
         })
+      this.showButtonMore = true;
       this.brands = [...new Set(this.brands)]; // Limpiamos los objetos repetidos
     }
     else{
       this.$router.push({path:'/'});
     }
 
-    await product.index()
-      .then(res => console.log(res))
-
-
   },
 
   methods:{
+    showMoreProducts(){
+      if(this.toProduct < this.products.length){
+        this.fromProduct = 0;
+        this.toProduct += 6;
+      }
+      else{
+        this.toProduct = this.products.length;
+      }
+    },
+
+    actionBrands(params){
+      if(params == 'reduce'){
+        if (this.from !== 0){
+          this.from -= 4;
+          this.to -= 4;
+          this.showFilterBrand = true;
+          setTimeout(() => {
+            this.showFilterBrand = false;
+          },1000)
+        }
+      }
+      else{
+        if(this.to < this.brands.length){
+          this.from += 4;
+          this.to += 4;
+          this.showFilterBrand = true;
+          setTimeout(() => {
+            this.showFilterBrand = false;
+          },1000)
+        }
+      }
+    },
+
     removeCart(c){
       this.carts.find((item,index) => {
         if(item === c){
@@ -227,18 +336,57 @@ export default {
       })
 
     },
+
     async sendToStock(){
+      this.showSend = true;
       try{
         await this.carts.forEach(item => {
           product.store(item)
             .then(res => this.showSuccess = true)
-            .catch(er => this.showSuccess = false)
+            .catch((e) => {
+              this.showSuccess = false;
+              console.error(e);
+            })
+          setTimeout(() => {
+            this.showSend = false;
+            this.carts = [];
+            this.showMessage = true;
+          },2000)
         })
+        await this.createTicket();
       }catch (e) {
-        console.error(e);
       }
 
     },
+
+    async createTicket(){
+      let arrayId = this.carts.map(item => item.id);
+      await tickets.post(this.totalPrice,arrayId)
+        .then((res) => {
+          this.ticketId = res.data.id;
+        })
+      await products_tickets.post(this.ticketId,arrayId)
+        .then(res => console.log(res))
+    },
+
+    async getTickets(){
+      await tickets.get()
+        .then(res => {
+          this.tickets = res.data;
+          this.tickets = this.tickets.map(item => {
+              let obj = {
+                ID : item.id,
+                nro_ticket : item.nro_ticket,
+                destino: item.send_to,
+                cantidad_de_productos: item.products.length,
+                precio_total: `$${new Intl.NumberFormat().format(item.total_price)}`,
+                estado: 'Enviado'
+              }
+              return obj;
+          })
+        })
+    },
+
     filterBrand(v){
       this.selectedBrand = v;
       this.filters = v;
@@ -250,12 +398,28 @@ export default {
         }
       });
       this.showSpinner = true;
+      this.toProduct = 4;
     },
+
     listeningSendProduct(v){
-      // Agregar a Carrito
       if(v.type === 1){
         this.$bvModal.show('modal__prov--carrito');
-        this.carts.push(v)
+        let product = {
+          totalPrice: v.price * v.count,
+          ...v
+        }
+        let productFind = this.carts.find(cart => cart.name === v.name);
+        if(productFind){
+          if(productFind.count + v.count > 8){
+          }else{
+            productFind.count += v.count;
+            productFind.totalPrice = productFind.price * productFind.count;
+          }
+        }
+        else{
+          this.carts.push(product);
+        }
+
       }
       else{
         this.productSelected = v;
@@ -263,6 +427,7 @@ export default {
       }
 
     },
+
     removeFilter(){
       this.filters = [];
       this.showFilter = false;
@@ -279,6 +444,19 @@ export default {
         },1000);
       }
     },
+    toProduct(){
+      if(this.toProduct < 58){
+        this.showButtonMore = true;
+      }
+      else{
+        this.showButtonMore = false;
+      }
+    },
+    view(){
+      if(this.view === 'Tickets'){
+        this.getTickets();
+      }
+    }
 
   }
 }

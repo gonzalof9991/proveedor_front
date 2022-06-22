@@ -1,17 +1,19 @@
 import axios from "axios";
 
-const config = {
-  'Ocp-Apim-Subscription-Key' : '7d1ef2177b0c43feb04fcbc90b70d8f5'
-}
-const URL = 'https://apiseguridad.azure-api.net/proveedor';
+const URL = 'https://proveedor-api.herokuapp.com/api/v1/stock';
+//const URL = 'http://127.0.0.1:8000/api/v1/stock';
 
-const createCategory = async (category) => {
+const post = async (category) => {
   let body = {
     name: category.name,
     slug: `cat-${category.name}`,
     icon: "<i class='fas fa-mobile-alt'></i>",
     image: "https://claudiorigollet.cl/categories/default.jpg"
   }
-  return axios.post(`${URL}/Category`,body,config)
+  return axios.post(`${URL}/Category`,body)
     .then(res => res.data)
+}
+
+export default {
+  post
 }

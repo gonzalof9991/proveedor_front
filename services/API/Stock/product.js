@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-const URL = 'http://127.0.0.1:8000/api/v1/stock';
+const URL = 'https://proveedor-api.herokuapp.com/api/v1/stock';
+//const URL = 'http://127.0.0.1:8000/api/v1/stock';
 
 const index = async () => {
-  return await axios.get(`${URL}/product`)
+  return await axios.get(`${URL}/products`)
     .then(res => res.data)
     .catch(err => console.error(err))
 }
@@ -18,14 +19,10 @@ const store = async (product) => {
     "quantity": product.count,
     "subcategory_id": "5"
   }
-  console.log(body);
-  return axios.post(`${URL}/product`,body)
-    .then(res => console.log(res))
+  return axios.post(`${URL}/products`,body)
+    .then(res => res)
     .catch(err => err)
 }
-
-
-
 
 
 

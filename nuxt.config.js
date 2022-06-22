@@ -19,6 +19,11 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ],
+    script: [
+      {
+        src : 'https://cdn.lordicon.com/xdjxvujz.js'
+      }
     ]
   },
 
@@ -71,11 +76,10 @@ export default {
     '@nuxtjs/firebase'
   ],
 
-  env:{
-    VUE_APP_FIREBASE_KEY : process.env.VUE_APP_FIREBASE_KEY
+
+  router: {
+    middleware: ['auth']
   },
-
-
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
