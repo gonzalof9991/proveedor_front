@@ -361,7 +361,8 @@ export default {
 
     async createTicket(){
       let arrayId = this.carts.map(item => item.id);
-      await tickets.post(this.totalPrice,arrayId)
+      let amount = this.carts.reduce((sum,item) => {return sum += item.count},0);
+      await tickets.post(this.totalPrice,arrayId,amount)
         .then((res) => {
           this.ticketId = res.data.id;
         })
@@ -378,7 +379,7 @@ export default {
                 ID : item.id,
                 nro_ticket : item.nro_ticket,
                 destino: item.send_to,
-                cantidad_de_productos: item.products.length,
+                cantidad_de_productos: item.amount,
                 precio_total: `$${new Intl.NumberFormat().format(item.total_price)}`,
                 estado: 'Enviado'
               }
