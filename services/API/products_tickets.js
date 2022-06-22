@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-//const URL = 'https://proveedor-api.herokuapp.com/api/v1';
-const URL = 'http://127.0.0.1:8000/api/v1'
+const URL = 'https://proveedor-api.herokuapp.com/api/v1';
+//const URL = 'http://127.0.0.1:8000/api/v1'
 
 const post = async (ticket_id,arrayId) => {
   let ticketId = ticket_id;
