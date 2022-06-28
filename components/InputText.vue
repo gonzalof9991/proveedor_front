@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100">
+  <div class="w-100 d-flex justify-content-center align-items-center">
     <input :class="(showError) ? 'login__form--error' :'login__form mb-3'" :id="data.id" :name="data.name" :type="data.type"  v-model="data.value" :maxlength="data.maxlength" :placeholder="data.placeholder" @keyup="validate()">
     <p v-if="showError"   class="login__p--error">{{data.error}}</p>
   </div>

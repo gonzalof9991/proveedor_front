@@ -3,7 +3,7 @@
     <main class="d-flex justify-content-between">
       <div class="menu__slide">
         <div class="slide__header">
-          Logo
+
         </div>
         <div class="slide__links">
           <div class="links" @click="view = 'Products'">
@@ -24,8 +24,10 @@
 
         </div>
         <div class="slide__footer">
-          <div class="links">
-            <b-icon font-scale="1.5" class="text-white" icon="signpost"></b-icon> <p class="p__link">Salir</p>
+          <div class="links" @click="() => {
+            $router.push({path:'/'});
+          }">
+              <b-icon font-scale="1.5" class="text-white" icon="signpost"></b-icon> <p class="p__link">Salir</p>
           </div>
         </div>
       </div>
@@ -35,7 +37,7 @@
           <div class="mt-5 d-flex justify-content-between align-items-center">
             <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Dashboard</h3>
             <div class="user">
-              <h5 class="color__red">Gonzalo</h5>
+              <h5 class="color__red" v-if="showName">{{showName}}</h5>
               <h6 class="bagde--prov">Admin</h6>
             </div>
           </div>
@@ -81,7 +83,7 @@
               </button>
             </div>
             <div v-else class="d-flex justify-content-center align-items-center flex-grow-1">
-              <BounceLoader :loading="true" :color="'#fe6563'" :size="'120px'"></BounceLoader>
+              <BounceLoader :loading="true" :color="'#759AFC'" :size="'120px'"></BounceLoader>
             </div>
           </div>
           <!-- Modal Detalle -->
@@ -181,7 +183,7 @@
           <div class="mt-5 d-flex justify-content-between align-items-center">
             <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Ordenes</h3>
             <div class="user">
-              <h5 class="color__red">Gonzalo</h5>
+              <h5 class="color__red" v-if="showName">{{showName}}</h5>
               <h6 class="bagde--prov">Admin</h6>
             </div>
           </div>
@@ -214,6 +216,8 @@ import product from "~/services/API/Stock/product.js";
 import Template from "@/components/Template";
 import tickets from "@/services/API/tickets";
 import products_tickets from "@/services/API/products_tickets";
+import moment from 'moment';
+
 export default {
   name: 'IndexPage',
   components: {Template, Card, BounceLoader},
@@ -241,7 +245,8 @@ export default {
       ticketId: 0,
       totalPrice: 0, // Precio total carrito
       view: 'Products',
-      tickets: []
+      tickets: [],
+      name: ''
     }
   },
   computed:{
@@ -252,6 +257,9 @@ export default {
       else{
         return this.products.slice(this.fromProduct,this.toProduct);
       }
+    },
+    showName(){
+      return this.name;
     },
     showProductsLength(){
       if(this.showFilter){
@@ -276,8 +284,10 @@ export default {
 
   },
 
-  async created() {
+  async mounted() {
     if(Object.values(this.$route.params).length > 0){
+      console.log(this.$route.params)
+      this.name = this.$route.params.user;
       await products.getProducts()
         .then(res => {
           this.products = res.data;
@@ -340,19 +350,6 @@ export default {
     async sendToStock(){
       this.showSend = true;
       try{
-        await this.carts.forEach(item => {
-          product.store(item)
-            .then(res => this.showSuccess = true)
-            .catch((e) => {
-              this.showSuccess = false;
-              console.error(e);
-            })
-          setTimeout(() => {
-            this.showSend = false;
-            this.carts = [];
-            this.showMessage = true;
-          },2000)
-        })
         await this.createTicket();
       }catch (e) {
       }
@@ -365,9 +362,14 @@ export default {
       await tickets.post(this.totalPrice,arrayId,amount)
         .then((res) => {
           this.ticketId = res.data.id;
+          console.log(this.ticketId);
+          this.showSend = false;
+          this.showMessage = true;
         })
       await products_tickets.post(this.ticketId,arrayId)
-        .then(res => console.log(res))
+        .then(res => {
+          this.carts = [];
+        })
     },
 
     async getTickets(){
@@ -380,6 +382,7 @@ export default {
                 nro_ticket : item.nro_ticket,
                 destino: item.send_to,
                 cantidad_de_productos: item.amount,
+                creación: moment(item.created_at).format('DD/MM/YYYY'),
                 precio_total: `$${new Intl.NumberFormat().format(item.total_price)}`,
                 estado: 'Enviado'
               }
