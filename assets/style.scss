@@ -755,14 +755,25 @@
   }
   .login{
     width: 100% !important;
+    .login__body{
+      .login__form, .login__form--error {
+        width: 70% !important;
+
+      }
+    }
+
   }
 }
 
 /* Large Screen */
 @media only screen and (max-width: 1200px) {
-  .login{
-    width: 100% !important;
+  .login__form, .login__form--error {
+    width: 70% !important;
+
   }
+
+
+
 
 }
 
@@ -770,6 +781,10 @@
 @media only screen and(max-width: 1400px) {
   .login{
     width: 100% !important;
+  }
+  .login__form, .login__form--error {
+    width: 70% !important;
+
   }
 
 }
