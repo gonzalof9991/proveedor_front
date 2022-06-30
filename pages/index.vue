@@ -14,7 +14,7 @@
             @sendValues="listeningInput"
           />
           <InputText
-            :data="{id:'pass', enableWhen: 2 ,name:'pass',placeholder:'Ingresa tu clave', value: this.form.pass , maxlength:8, type:'password', error:'Olvidaste ingresar tu clave'}"
+            :data="{id:'pass', enableWhen: 2 ,name:'pass',placeholder:'Ingresa tu contraseña', value: this.form.pass , maxlength:8, type:'password', error:'Olvidaste ingresar tu contraseña'}"
             @sendValues="listeningInput"
           />
 
