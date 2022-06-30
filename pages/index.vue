@@ -25,7 +25,10 @@
         }" :class="(showButton) ? 'login__button' : 'login__button--disabled'">
             Ingresar
           </div>
-          <div class="login__texts">
+          <div v-if="showError" class="login__texts">
+            <p class="login__p font-weight-bold color__red--option">Contraseña o usuario incorrecto.</p>
+          </div>
+          <div class="login__texts d-none">
             <p class="login__p color__proveedor">¿Olvidaste tu contraseña?</p>
           </div>
         </div>
@@ -36,6 +39,7 @@
 <script>
 import InputText from "~/components/InputText";
 import validate from "~/services/validate";
+import user from "@/services/API/user";
 export default {
   name:'index',
   components: {InputText},
@@ -48,19 +52,42 @@ export default {
       form: {
 
       },
-      showButton: false
+      showButton: false,
+      user: {},
+      showError: false
+    }
+  },
+  mounted() {
+    if(localStorage.getItem('user')){
+      this.$router.push({name: 'home'});
     }
   },
   methods:{
-    login(){
-      this.isLogged = true;
-      let obj = {
-        ...this.form,
-        isLogged : this.isLogged
+    async login(){
+      this.isLogged = false;
+      await user.get()
+        .then(res => {
+          res.data.forEach(item => {
+            if(item.name === this.form.user && item.password === this.form.pass){
+              this.isLogged = true;
+              this.user = item;
+            }
+          })
+        });
+      if(this.isLogged){
+        localStorage.setItem('user',this.user.name);
+        await this.$router.push({name: 'home'});
       }
-      this.$router.push({name:'home', params: obj});
+      else{
+        this.showError = true;
+        this.form = {};
+        this.showButton = false;
+
+      }
+
     },
     listeningInput(v){
+      this.showError = false;
       this.form[v.name] = v.value;
       if(Object.entries(this.form).length === 2){
         this.showButton = validate.validateForm(this.form);

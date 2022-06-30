@@ -4,20 +4,19 @@ const URL = 'https://proveedor-api.herokuapp.com/api/v1';
 //const URL = 'http://127.0.0.1:8000/api/v1';
 
 const get = async () => {
-  return await axios.get(`${URL}/tickets`)
+  return await axios.get(`${URL}/categories`)
     .then(res =>  res.data)
     .catch(e => console.error(e))
 }
 
-const post = async (price,arrayId,amount,user_id) => {
+const post = async (price,arrayId,amount) => {
   let data = {
     name: 'Proovedor',
     send_to : "Stock",
     total_price: price,
-    amount: amount,
-    user_id : user_id
+    amount: amount
   }
-  return await axios.post(`${URL}/tickets`,data)
+  return await axios.post(`${URL}/categories`,data)
     .then(res => res.data)
     .catch(e => console.error(e))
 }

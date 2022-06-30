@@ -12,21 +12,19 @@
           <div class="links">
             <b-icon font-scale="1.5" class="text-white" icon="person"></b-icon> <p class="p__link">Perfil</p>
           </div>
-          <div class="links" @click="view = 'Tickets'">
-            <b-icon font-scale="1.5" class="text-white" icon="clipboard-data"></b-icon> <p class="p__link">Ordenes</p>
+          <div class="links" @click="view = 'Tickets'" v-if="name">
+            <b-icon font-scale="1.5" class="text-white" icon="clipboard-data"></b-icon> <p class="p__link">{{showText}}</p>
           </div>
-          <div class="links">
+          <div v-if="name === 'Admin'" class="links">
             <b-icon font-scale="1.5" class="text-white" icon="people"></b-icon> <p class="p__link">Usuarios</p>
           </div>
-          <div class="links">
+          <div  v-if="name === 'Admin'" class="links" @click="view = 'Categories'">
             <b-icon font-scale="1.5" class="text-white" icon="card-text"></b-icon> <p class="p__link">Categorias</p>
           </div>
 
         </div>
         <div class="slide__footer">
-          <div class="links" @click="() => {
-            $router.push({path:'/'});
-          }">
+          <div class="links" @click="signOff()">
               <b-icon font-scale="1.5" class="text-white" icon="signpost"></b-icon> <p class="p__link">Salir</p>
           </div>
         </div>
@@ -38,7 +36,7 @@
             <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Dashboard</h3>
             <div class="user">
               <h5 class="color__red" v-if="showName">{{showName}}</h5>
-              <h6 class="bagde--prov">Admin</h6>
+              <h6 v-if="name" class="bagde--prov">{{showNameText}}</h6>
             </div>
           </div>
           <div class="filter__brand" v-if="brands.length > 1">
@@ -159,12 +157,12 @@
                   colors="primary:#e55958,secondary:#e55958"
                   style="width:250px;height:250px">
                 </lord-icon>
-                <div class="message--success">Se ha registrado el ticket N°{{ticketId}} en el sistema, para más detalles vaya a la página "Ordenes", muchas gracias.</div>
+                <div class="message--success">Se ha registrado el ticket N°{{ticketId}} en el sistema, para más detalles vaya a la página "{{showText}}", muchas gracias.</div>
               </div>
 
             </div>
             <div v-if="carts.length > 0" class="modal__footer--carrito">
-              <div @click="sendToStock()" class="footer__button--carrito">
+              <div @click="sendInvoice(); sendToStock();" class="footer__button--carrito">
                 <span v-if="showSend">Enviando... </span>
                 <div v-else class="d-flex justify-content-center align-items-center">
                   <span>Enviar</span>
@@ -181,15 +179,15 @@
       <Template v-if="view === 'Tickets'">
         <template v-slot:content>
           <div class="mt-5 d-flex justify-content-between align-items-center">
-            <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Ordenes</h3>
+            <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">{{ showText }}</h3>
             <div class="user">
               <h5 class="color__red" v-if="showName">{{showName}}</h5>
-              <h6 class="bagde--prov">Admin</h6>
+              <h6 v-if="name" class="bagde--prov">{{showNameText}}</h6>
             </div>
           </div>
-          <div  class="tickets">
+          <div class="tickets">
             <div v-if="tickets.length > 0" class="tickets__table">
-              <b-table striped hover :items="tickets"></b-table>
+              <b-table striped hover :items="setTickets" class="font-weight-bold"></b-table>
             </div>
             <div v-else class="mt-5 mb-5 d-flex flex-column justify-content-center align-items-center">
               <lord-icon
@@ -201,6 +199,80 @@
               <h4 class="bagde--prov">No hay ordenes creadas, muchas gracias.</h4>
             </div>
           </div>
+        </template>
+      </Template>
+
+      <Template v-if="view === 'Categories'">
+        <template v-slot:content>
+          <div class="mt-5 d-flex justify-content-between align-items-center">
+            <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Categorias</h3>
+            <div class="user">
+              <h5 class="color__red" v-if="showName">{{showName}}</h5>
+              <h6 class="bagde--prov">Admin</h6>
+            </div>
+          </div>
+          <div class="tickets">
+            <div v-if="categories.length > 0" class="tickets__table">
+              <b-table-simple responsive="xl" striped hover class="text-center" align="center" >
+                <b-thead>
+                  <b-tr>
+                    <b-th>ID</b-th>
+                    <b-th>Nombre</b-th>
+                    <b-th>Cantida de productos</b-th>
+                    <b-th>Opciones</b-th>
+                  </b-tr>
+                </b-thead>
+                <b-tbody>
+                  <b-tr v-for="c in categories" :key="c.id">
+                    <b-th>{{c.id}}</b-th>
+                    <b-th>{{c.name}}</b-th>
+                    <b-th>{{c.products.length}}</b-th>
+                    <b-th>
+                      <div class="d-flex justify-content-around align-items-center">
+                        <div class="update color__terc" @click="openModal('modal-categories',c,'categories')">
+                          <b-icon icon="pencil-fill"></b-icon> <span>Editar</span>
+                        </div>
+                        <div class="delete color__red--option">
+                          <b-icon icon="trash-fill"></b-icon> <span>Eliminar</span>
+                        </div>
+                      </div>
+
+                    </b-th>
+                  </b-tr>
+                </b-tbody>
+              </b-table-simple>
+            </div>
+            <div v-else class="mt-5 mb-5 d-flex flex-column justify-content-center align-items-center">
+              <lord-icon
+                src="https://cdn.lordicon.com/nlzvfogq.json"
+                trigger="loop"
+                colors="primary:#e55958,secondary:#e55958"
+                style="width:250px;height:250px">
+              </lord-icon>
+              <h4 class="bagde--prov">No hay categorias creadas, muchas gracias.</h4>
+            </div>
+          </div>
+          <!-- Modal Detalle -->
+          <b-modal id="modal-categories" size="md" hide-footer>
+            <template #modal-header="{ close }">
+              <div>
+                <h4 class="text-white font-weight-bold text-center">Actualizar Categoria</h4>
+              </div>
+              <div @click="close()">
+                <b-icon icon="x-lg" class="x__close" font-scale="1.5"></b-icon>
+              </div>
+
+            </template>
+            <div class="modal__body">
+              <div class="d-flex flex-column justify-content-center align-items-center">
+                <InputText :data="{ id: 'name' , name:'name' , label: 'Nombre', type: 'text' , placeholder: 'Ingresa el nombre' , value: category.name}"/>
+                <div class="d-flex justify-content-center align-items-center">
+                  <Button :data="{type:'button' , class: 'button' , name:'Actualizar'}"/>
+                </div>
+              </div>
+            </div>
+
+          </b-modal>
         </template>
       </Template>
     </main>
@@ -215,12 +287,18 @@ import Card from "~/components/Card";
 import product from "~/services/API/Stock/product.js";
 import Template from "@/components/Template";
 import tickets from "@/services/API/tickets";
+import factura from "@/services/API/Contabilidad/factura";
+import Categories from '@/services/API/categories'
 import products_tickets from "@/services/API/products_tickets";
 import moment from 'moment';
+import categories from "@/services/API/categories";
+import InputText from "@/components/InputText";
+import Button from "@/components/Button";
+import user from "@/services/API/user";
 
 export default {
   name: 'IndexPage',
-  components: {Template, Card, BounceLoader},
+  components: {Button, InputText, Template, Card, BounceLoader},
   data(){
     return{
       products: [],
@@ -246,10 +324,36 @@ export default {
       totalPrice: 0, // Precio total carrito
       view: 'Products',
       tickets: [],
-      name: ''
+      setTickets: [],
+      categories: [],
+      category: {},
+      name: '',
+      user: {}
     }
   },
   computed:{
+    showText(){
+      if(this.name === 'Adquisiciones'){
+        return 'Mis Pedidos';
+      }
+      else if (this.name === 'Proovedor'){
+        return 'Ordenes';
+      }
+      else{
+        return 'Ordenes';
+      }
+    },
+    showNameText(){
+      if(this.name === 'Adquisiciones'){
+        return 'Comprador';
+      }
+      else if (this.name === 'Proovedor'){
+        return 'Colabolador';
+      }
+      else{
+        return 'Admin';
+      }
+    },
     showProducts(){
       if(this.showFilter){
         return this.productsSet.slice(this.fromProduct,this.toProduct)
@@ -257,6 +361,9 @@ export default {
       else{
         return this.products.slice(this.fromProduct,this.toProduct);
       }
+    },
+    showCategory(){
+      return this.category;
     },
     showName(){
       return this.name;
@@ -277,7 +384,6 @@ export default {
       let totalPriceFormatter = new Intl.NumberFormat().format(totalPrice)
       return `$${totalPriceFormatter}`;
     },
-
     showBrands(){
       return this.brands.slice(this.from,this.to);
     },
@@ -285,9 +391,16 @@ export default {
   },
 
   async mounted() {
-    if(Object.values(this.$route.params).length > 0){
-      console.log(this.$route.params)
-      this.name = this.$route.params.user;
+    if(localStorage.getItem('user')){
+      this.name = localStorage.getItem('user');
+      await user.get()
+        .then(res => {
+          res.data.forEach(item =>{
+            if(item.name === this.name){
+              this.user = item;
+            }
+          })
+        })
       await products.getProducts()
         .then(res => {
           this.products = res.data;
@@ -305,6 +418,16 @@ export default {
   },
 
   methods:{
+    signOff(){
+      localStorage.removeItem('user');
+      this.$router.push({path:"/"});
+    },
+    openModal(id,data,type){
+      if(type === 'categories'){
+        this.category = data;
+      }
+      this.$bvModal.show(id);
+    },
     showMoreProducts(){
       if(this.toProduct < this.products.length){
         this.fromProduct = 0;
@@ -313,6 +436,13 @@ export default {
       else{
         this.toProduct = this.products.length;
       }
+    },
+
+    async getCategories(){
+      await categories.get()
+        .then(res => {
+          this.categories = res.data;
+        })
     },
 
     actionBrands(params){
@@ -356,38 +486,89 @@ export default {
 
     },
 
+    async sendInvoice(){
+      let invoice = {
+        date: moment().format('YYYY-MM-DD'),
+        totalAmount : this.totalPrice,
+        user: `Proovedor-${this.name}`
+      };
+      let products = this.carts.map(item => {
+        let obj = {
+          cantidad: item.count,
+          idProducto: item.id,
+          nombreProducto: item.name,
+          precio: item.price
+
+        }
+        return obj;
+      })
+      await factura.store(invoice,products);
+    },
+
     async createTicket(){
+
       let arrayId = this.carts.map(item => item.id);
       let amount = this.carts.reduce((sum,item) => {return sum += item.count},0);
-      await tickets.post(this.totalPrice,arrayId,amount)
-        .then((res) => {
-          this.ticketId = res.data.id;
-          console.log(this.ticketId);
-          this.showSend = false;
-          this.showMessage = true;
-        })
-      await products_tickets.post(this.ticketId,arrayId)
-        .then(res => {
-          this.carts = [];
-        })
+      let userId = this.user.id;
+      console.log(userId);
+      setTimeout(async () => {
+
+        await tickets.post(this.totalPrice,arrayId,amount,userId)
+          .then((res) => {
+            this.ticketId = res.data.id;
+            this.showSend = false;
+            this.showMessage = true;
+          })
+        await products_tickets.post(this.ticketId,arrayId)
+          .then(res => {
+            this.carts = [];
+          })
+      },1500);
+
     },
 
     async getTickets(){
+
       await tickets.get()
         .then(res => {
           this.tickets = res.data;
-          this.tickets = this.tickets.map(item => {
+          this.setTickets = [];
+          if(this.user.name === 'Adquisiciones'){
+            this.tickets.find(item => {
+              if(item.users.name === this.user.name && this.user.type_of_user_id === 3){
+                let obj = {
+                  ID : item.id,
+                  nro_ticket : item.nro_ticket,
+                  destino: item.send_to,
+                  cantidad_de_productos: item.amount,
+                  creación: moment(item.created).format('DD/MM/YYYY'),
+                  precio_total: `$${new Intl.NumberFormat().format(item.total_price)}`,
+                  usuario: item.users.name,
+                  estado: 'Enviado'
+                }
+                this.setTickets.push(obj);
+              }
+
+
+            })
+          }
+          else{
+            this.setTickets = [];
+            this.tickets.forEach(item => {
               let obj = {
                 ID : item.id,
                 nro_ticket : item.nro_ticket,
                 destino: item.send_to,
                 cantidad_de_productos: item.amount,
-                creación: moment(item.created_at).format('DD/MM/YYYY'),
+                creación: moment(item.created).format('DD/MM/YYYY'),
                 precio_total: `$${new Intl.NumberFormat().format(item.total_price)}`,
+                usuario: item.users.name,
                 estado: 'Enviado'
               }
-              return obj;
-          })
+              this.setTickets.push(obj);
+            })
+          }
+
         })
     },
 
@@ -459,6 +640,11 @@ export default {
     view(){
       if(this.view === 'Tickets'){
         this.getTickets();
+
+
+      }
+      if(this.view === 'Categories'){
+        this.getCategories();
       }
     }
 
