@@ -9,19 +9,36 @@ const get = async () => {
     .catch(e => console.error(e))
 }
 
-const post = async (price,arrayId,amount) => {
-  let data = {
-    name: 'Proovedor',
-    send_to : "Stock",
-    total_price: price,
-    amount: amount
-  }
-  return await axios.post(`${URL}/categories`,data)
+const store = async (data) => {
+  let body = {
+    'name': data.name
+  };
+  return await axios.post(`${URL}/categories`,body)
+    .then(res => res.data)
+    .catch(e => console.error(e))
+}
+
+const update = async (id,data) => {
+  console.log(data);
+  let body = {
+    'name': data.name
+  };
+  console.log(body);
+  return await axios.patch(`${URL}/categories/${id}`,body)
+    .then(res => res.data)
+    .catch(e => console.error(e))
+}
+
+const destroy = async (id) => {
+
+  return await axios.delete(`${URL}/categories/${id}`)
     .then(res => res.data)
     .catch(e => console.error(e))
 }
 
 export default {
   get,
-  post
+  store,
+  update,
+  destroy
 }

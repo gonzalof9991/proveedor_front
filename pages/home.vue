@@ -9,16 +9,13 @@
           <div class="links" @click="view = 'Products'">
             <b-icon animation="pulse" font-scale="1.5" class="text-white" icon="house-door"></b-icon> <p class="p__link">Dashboard</p>
           </div>
-          <div class="links">
-            <b-icon font-scale="1.5" class="text-white" icon="person"></b-icon> <p class="p__link">Perfil</p>
-          </div>
           <div class="links" @click="view = 'Tickets'" v-if="name">
             <b-icon font-scale="1.5" class="text-white" icon="clipboard-data"></b-icon> <p class="p__link">{{showText}}</p>
           </div>
-          <div v-if="name === 'Admin'" class="links">
+          <div v-if="user.type_of_user_id === 1" class="links"  @click="view = 'Users'">
             <b-icon font-scale="1.5" class="text-white" icon="people"></b-icon> <p class="p__link">Usuarios</p>
           </div>
-          <div  v-if="name === 'Admin'" class="links" @click="view = 'Categories'">
+          <div  v-if="user.type_of_user_id === 1" class="links" @click="view = 'Categories'">
             <b-icon font-scale="1.5" class="text-white" icon="card-text"></b-icon> <p class="p__link">Categorias</p>
           </div>
 
@@ -213,6 +210,9 @@
           </div>
           <div class="tickets">
             <div v-if="categories.length > 0" class="tickets__table">
+              <div class="button--create mb-5" @click="openModal('modal-categories--create')">
+                <b-icon icon="plus-lg" class="text-white"></b-icon>
+              </div>
               <b-table-simple responsive="xl" striped hover class="text-center" align="center" >
                 <b-thead>
                   <b-tr>
@@ -232,7 +232,7 @@
                         <div class="update color__terc" @click="openModal('modal-categories',c,'categories')">
                           <b-icon icon="pencil-fill"></b-icon> <span>Editar</span>
                         </div>
-                        <div class="delete color__red--option">
+                        <div class="delete color__red--option" @click="listeningClick({method: 'delete' , data: { id: c.id} , typeTable: 'Categories'})">
                           <b-icon icon="trash-fill"></b-icon> <span>Eliminar</span>
                         </div>
                       </div>
@@ -265,9 +265,138 @@
             </template>
             <div class="modal__body">
               <div class="d-flex flex-column justify-content-center align-items-center">
-                <InputText :data="{ id: 'name' , name:'name' , label: 'Nombre', type: 'text' , placeholder: 'Ingresa el nombre' , value: category.name}"/>
+                <InputText :data="{ id: 'category' , name:'name' , label: 'Nombre', type: 'text' , placeholder: category.name , value: form.name}" @sendValues="listeningInput"/>
                 <div class="d-flex justify-content-center align-items-center">
-                  <Button :data="{type:'button' , class: 'button' , name:'Actualizar'}"/>
+                  <Button :data="{type:'button' , class: 'button' , method: 'patch', data: category , typeTable: 'Categories', name:'Actualizar'}" @click="listeningClick"/>
+                </div>
+              </div>
+            </div>
+
+          </b-modal>
+          <!-- Modal Crear -->
+          <b-modal id="modal-categories--create" size="md" hide-footer>
+            <template #modal-header="{ close }">
+              <div>
+                <h4 class="text-white font-weight-bold text-center">Crear Categoria</h4>
+              </div>
+              <div @click="close()">
+                <b-icon icon="x-lg" class="x__close" font-scale="1.5"></b-icon>
+              </div>
+
+            </template>
+            <div class="modal__body">
+              <div class="d-flex flex-column justify-content-center align-items-center">
+                <InputText :data="{ id: 'category' , name:'name' , label: 'Nombre', type: 'text' , placeholder: 'Ingresa el nombre' , value: form.name}" @sendValues="listeningInput"/>
+                <div class="d-flex justify-content-center align-items-center">
+                  <Button :data="{type:'button', method: 'post' , typeTable: 'Categories', class: 'button' , name:'Crear'}" @click="listeningClick"/>
+                </div>
+              </div>
+            </div>
+
+          </b-modal>
+        </template>
+      </Template>
+
+      <Template v-if="view === 'Users'">
+        <template v-slot:content>
+          <div class="mt-5 d-flex justify-content-between align-items-center">
+            <h3 class="ml-5 color__proveedor font-weight-bold bagde--prov">Usuarios</h3>
+            <div class="user">
+              <h5 class="color__red" v-if="showName">{{showName}}</h5>
+              <h6 class="bagde--prov">Admin</h6>
+            </div>
+          </div>
+          <div class="tickets">
+            <div v-if="users.length > 0" class="tickets__table">
+              <div class="button--create mb-5" @click="openModal('modal-user--create')">
+                <b-icon icon="plus-lg" class="text-white"></b-icon>
+              </div>
+              <b-table-simple responsive="xl" striped hover class="text-center" align="center" >
+                <b-thead>
+                  <b-tr>
+                    <b-th>ID</b-th>
+                    <b-th>Nombre</b-th>
+                    <b-th>Contraseña</b-th>
+                    <b-th>Correo</b-th>
+                    <b-th>Tipo de usuario</b-th>
+                    <b-th>Opciones</b-th>
+                  </b-tr>
+                </b-thead>
+                <b-tbody>
+                  <b-tr v-for="u in users" :key="u.id">
+                    <b-th>{{u.id}}</b-th>
+                    <b-th>{{u.name}}</b-th>
+                    <b-th>{{u.password}}</b-th>
+                    <b-th>{{u.email}}</b-th>
+                    <b-th>{{u.type_of_user}}</b-th>
+                    <b-th>
+                      <div class="d-flex justify-content-around align-items-center">
+                        <div class="update color__terc" @click="openModal('modal-user',u,'users')">
+                          <b-icon icon="pencil-fill"></b-icon> <span>Editar</span>
+                        </div>
+                        <div class="delete color__red--option" @click="listeningClick({method: 'delete' , data: { id: u.id} , typeTable: 'User'})">
+                          <b-icon icon="trash-fill"></b-icon> <span>Eliminar</span>
+                        </div>
+                      </div>
+
+                    </b-th>
+                  </b-tr>
+                </b-tbody>
+              </b-table-simple>
+            </div>
+            <div v-else class="mt-5 mb-5 d-flex flex-column justify-content-center align-items-center">
+              <lord-icon
+                src="https://cdn.lordicon.com/nlzvfogq.json"
+                trigger="loop"
+                colors="primary:#e55958,secondary:#e55958"
+                style="width:250px;height:250px">
+              </lord-icon>
+              <h4 class="bagde--prov">No hay usuarios creados, muchas gracias.</h4>
+            </div>
+          </div>
+          <!-- Modal Detalle -->
+          <b-modal id="modal-user" size="md" hide-footer>
+            <template #modal-header="{ close }">
+              <div>
+                <h4 class="text-white font-weight-bold text-center">Actualizar Usuario</h4>
+              </div>
+              <div @click="close()">
+                <b-icon icon="x-lg" class="x__close" font-scale="1.5"></b-icon>
+              </div>
+
+            </template>
+            <div class="modal__body">
+              <div class="d-flex flex-column justify-content-center align-items-center">
+                <InputText :data="{ id: 'user' , name:'name' , label: 'Nombre', type: 'text' , placeholder: userForm.name , value: form.name}" @sendValues="listeningInput"/>
+                <InputText :data="{ id: 'password' , name:'password' , label: 'Contraseña', type: 'password' , placeholder: userForm.password , value: form.password}" @sendValues="listeningInput"/>
+                <InputText :data="{ id: 'email' , name:'email' , label: 'Correo', type: 'email' , placeholder: userForm.email  , value: form.email}" @sendValues="listeningInput"/>
+                <InputText :data="{ id: 'type' , name:'type_of_user_id' , label: 'Tipo de usuario', type: 'text' , placeholder: 'Tipo de usuario' , value: form.type_of_user_id}" @sendValues="listeningInput"/>
+                <div class="d-flex justify-content-center align-items-center">
+                  <Button :data="{type:'button' , class: 'button' , method: 'patch', data: userForm , typeTable: 'User', name:'Actualizar'}" @click="listeningClick"/>
+                </div>
+              </div>
+            </div>
+
+          </b-modal>
+          <!-- Modal Crear -->
+          <b-modal id="modal-user--create" size="md" hide-footer>
+            <template #modal-header="{ close }">
+              <div>
+                <h4 class="text-white font-weight-bold text-center">Crear Usuario</h4>
+              </div>
+              <div @click="close()">
+                <b-icon icon="x-lg" class="x__close" font-scale="1.5"></b-icon>
+              </div>
+
+            </template>
+            <div class="modal__body">
+              <div class="d-flex flex-column justify-content-center align-items-center">
+                <InputText :data="{ id: 'category' , name:'name' , label: 'Nombre', type: 'text' , placeholder: 'Ingresa el nombre' , value: form.name}" @sendValues="listeningInput"/>
+                <InputText :data="{ id: 'password' , name:'password' , label: 'Contraseña', type: 'text' , placeholder: 'Ingresa la contraseña' , value: form.password}" @sendValues="listeningInput"/>
+                <InputText :data="{ id: 'email' , name:'email' , label: 'Correo', type: 'text' , placeholder: 'Ingresa el correo' , value: form.email}" @sendValues="listeningInput"/>
+                <InputText :data="{ id: 'type' , name:'type_of_user_id' , label: 'Tipo de usuario', type: 'text' , placeholder: 'Tipo de usuario' , value: form.type_of_user_id}" @sendValues="listeningInput"/>
+                <div class="d-flex justify-content-center align-items-center">
+                  <Button :data="{type:'button', method: 'post' , typeTable: 'User', class: 'button' , name:'Crear'}" @click="listeningClick"/>
                 </div>
               </div>
             </div>
@@ -291,10 +420,9 @@ import factura from "@/services/API/Contabilidad/factura";
 import Categories from '@/services/API/categories'
 import products_tickets from "@/services/API/products_tickets";
 import moment from 'moment';
-import categories from "@/services/API/categories";
 import InputText from "@/components/InputText";
 import Button from "@/components/Button";
-import user from "@/services/API/user";
+import User from "@/services/API/user";
 
 export default {
   name: 'IndexPage',
@@ -328,7 +456,11 @@ export default {
       categories: [],
       category: {},
       name: '',
-      user: {}
+      user: {},
+      userForm: {},
+      users: [],
+      form: {
+      },
     }
   },
   computed:{
@@ -344,10 +476,10 @@ export default {
       }
     },
     showNameText(){
-      if(this.name === 'Adquisiciones'){
+      if(this.user.type_of_user_id === 3){
         return 'Comprador';
       }
-      else if (this.name === 'Proovedor'){
+      else if (this.user.type_of_user_id === 2){
         return 'Colabolador';
       }
       else{
@@ -388,12 +520,13 @@ export default {
       return this.brands.slice(this.from,this.to);
     },
 
+
   },
 
   async mounted() {
     if(localStorage.getItem('user')){
       this.name = localStorage.getItem('user');
-      await user.get()
+      await User.get()
         .then(res => {
           res.data.forEach(item =>{
             if(item.name === this.name){
@@ -418,6 +551,53 @@ export default {
   },
 
   methods:{
+
+    listeningInput(v){
+      this.form[v.name] = v.value;
+    },
+
+    async update(id,data,callback){
+      await callback.update(id,data)
+      this.form = {};
+      this.getAll();
+    },
+
+    async store(data,callback){
+      await callback.store(data)
+      this.form = {};
+      this.getAll();
+    },
+
+    async destroy(data,callback){
+      await callback.destroy(data)
+      this.form = {};
+      this.getAll();
+    },
+
+    listeningClick(params){
+      const func = (params.typeTable === 'Categories') ? Categories : (params.typeTable === 'User') ? User : null;
+      if(params.method == 'patch'){
+        this.update(params.data.id,this.form,func);
+      }
+      else if (params.method == 'post'){
+        this.store(this.form,func);
+      }
+      else if (params.method == 'delete'){
+        this.destroy(params.data.id,func);
+      }
+
+    },
+
+    getAll(){
+      this.getCategories();
+      this.getTickets();
+      this.getUsers();
+      this.$bvModal.hide('modal-user');
+      this.$bvModal.hide('modal-user--create');
+      this.$bvModal.hide('modal-categories');
+      this.$bvModal.hide('modal-categories--create');
+    },
+
     signOff(){
       localStorage.removeItem('user');
       this.$router.push({path:"/"});
@@ -425,6 +605,9 @@ export default {
     openModal(id,data,type){
       if(type === 'categories'){
         this.category = data;
+      }
+      if(type === 'users'){
+        this.userForm = data;
       }
       this.$bvModal.show(id);
     },
@@ -439,9 +622,25 @@ export default {
     },
 
     async getCategories(){
-      await categories.get()
+      await Categories.get()
         .then(res => {
           this.categories = res.data;
+        })
+    },
+
+    async getUsers(){
+      await User.get()
+        .then(res => {
+          this.users = res.data.map(user => {
+            return {
+              id: user.id,
+              name: user.name,
+              password: user.password,
+              email: user.email,
+              type_of_user : (user.type_of_user_id === 1) ? 'Administrador' : (user.type_of_user_id === 2) ? 'Colaborador' :  (user.type_of_user_id === 3) ? 'Comprador' : null
+            }
+          });
+          this.users.sort((a,b) => a.id - b.id);
         })
     },
 
@@ -533,7 +732,7 @@ export default {
         .then(res => {
           this.tickets = res.data;
           this.setTickets = [];
-          if(this.user.name === 'Adquisiciones'){
+          if(this.user.type_of_user_id === 3){
             this.tickets.find(item => {
               if(item.users.name === this.user.name && this.user.type_of_user_id === 3){
                 let obj = {
@@ -641,10 +840,13 @@ export default {
       if(this.view === 'Tickets'){
         this.getTickets();
 
-
       }
       if(this.view === 'Categories'){
         this.getCategories();
+      }
+
+      if(this.view === 'Users'){
+        this.getUsers();
       }
     }
 
